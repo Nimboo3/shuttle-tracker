@@ -1,0 +1,36 @@
+services:
+  # 1. Postgres + PostGIS
+  postgis:
+    image: postgis/postgis:14-3.3
+    container_name: postgis
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: shuttle
+      POSTGRES_PASSWORD: shuttle
+      POSTGRES_DB: shuttledb
+    volumes:
+      - postgis_data:/var/lib/postgresql/data
+
+  # 2. Redis cache
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+
+  # 3. LocalStack (AWS emulation)
+  localstack:
+    image: localstack/localstack:latest
+    container_name: localstack
+    ports:
+      - "4566:4566"
+      - "4510-4559:4510-4559"
+    environment:
+      - SERVICES=dynamodb,lambda,apigateway,ssm,sns,cognito
+      - DEBUG=1
+
+volumes:
+  postgis_data:
+
